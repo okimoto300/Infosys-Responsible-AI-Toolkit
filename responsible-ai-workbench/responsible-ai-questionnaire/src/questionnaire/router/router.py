@@ -33,6 +33,8 @@ from questionnaire.dao.ExceptionDb import ExceptionDb
 
 from questionnaire.mapper.Questionnaires.aiCanvasMapper import *
 
+from questionnaire.auth import get_current_user
+
 
 router = APIRouter()
 log=CustomLogger()
@@ -42,14 +44,18 @@ class LargeDataInput(BaseModel):
     data:list
    
 @router.get('/questionnaire/allLotDetails/{userId}')
-def getAllSlotAssign(userId):
+def getAllSlotAssign(userId, current_user: str = Depends(get_current_user)):
     id = uuid.uuid4().hex
     request_id_var.set(id)
     log.info("Entered create getAllSlotAssignRouter routing method")
 
+    if current_user != userId:
+        log.warning("User " + current_user + " attempted to access data for " + userId)
+        raise HTTPException(status_code=403, detail="Access denied")
+
     try:
         log.debug("before invoking get getAllSlotAssignRouter service")
-        response = UserLotAllocationDb.findAllOnUser(userId)
+        response = UserLotAllocationDb.findAllOnUser(current_user)
         response=response[::-1]
         # response=[1,2]
         log.debug("after invoking get getAllSlotAssignRouter service")
@@ -59,7 +65,7 @@ def getAllSlotAssign(userId):
     except PrivacyException as cie:
         log.error(cie.__dict__)
         log.info("exit create getAllSlotAssignRouter routing method")
-        raise HTTPException(**cie.__dict__) 
+        raise HTTPException(**cie.__dict__)
     except Exception as e:
         log.error(str(e))
         ExceptionDb.create({"UUID":request_id_var.get(),"function":"getAllSlotAssignRouter","msg":str(e),"description":str(e)+"Line No:"+str(e.__traceback__.tb_lineno)})
@@ -69,7 +75,7 @@ def getAllSlotAssign(userId):
             headers={"X-Error": "Please check with administration!!"})
     
 @router.post('/questionnaire/telemetryUrlAdd')
-def addTelemetryUrl(payload:linkRequest):
+def addTelemetryUrl(payload:linkRequest, current_user: str = Depends(get_current_user)):
     id = uuid.uuid4().hex
     request_id_var.set(id)
     log.info("Entered create addTelemetryUrlRouter routing method")
@@ -95,7 +101,7 @@ def addTelemetryUrl(payload:linkRequest):
             headers={"X-Error": "Please check with administration!!"})
     
 @router.get('/questionnaire/telemetryUrlGet/{tenant}')
-def getAllTelemetryUrl(tenant):
+def getAllTelemetryUrl(tenant, current_user: str = Depends(get_current_user)):
     id = uuid.uuid4().hex
     request_id_var.set(id)
     log.info("Entered create getAllTelemetryUrlRouter routing method")
@@ -122,13 +128,17 @@ def getAllTelemetryUrl(tenant):
 from questionnaire.service.workbench.service import WorkBench
 
 @router.post('/questionnaire/workbench/uploadFile')
-def slotAssign(file: UploadFile = File(...), userId: str = Form(...), tenant: List[str] = Form(...)):
+def slotAssign(file: UploadFile = File(...), userId: str = Form(...), tenant: List[str] = Form(...), current_user: str = Depends(get_current_user)):
     id = uuid.uuid4().hex
     request_id_var.set(id)
     log.info("Entered create slotAssignRouter routing method")
 
+    if current_user != userId:
+        log.warning("User " + current_user + " attempted to act as " + userId)
+        raise HTTPException(status_code=403, detail="Access denied")
+
     try:
-        payload={"file":file,"userId":userId,"tenant":tenant[0].split(',')}
+        payload={"file":file,"userId":current_user,"tenant":tenant[0].split(',')}
         log.debug("before invoking create slotAssignRouter service")
         log.debug("request payload: "+ str(payload))
         response =WorkBench.uploadFile(payload)

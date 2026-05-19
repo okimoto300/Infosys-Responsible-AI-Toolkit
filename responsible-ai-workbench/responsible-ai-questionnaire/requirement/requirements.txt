@@ -10,4 +10,5 @@ python-multipart
 pandas
 pandas 
 chardet==4.0.0   
-fpdf 
+fpdf
+PyJWT>=2.8.0
