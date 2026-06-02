@@ -52,6 +52,7 @@ from rai_admin.dao.AccDataGrpMappingDb import AccDataGrpDb
 from rai_admin.dao.customeTemplateDb import CustomeTemplateDB
 from rai_admin.dao.templateDataDb import TemplatDataeDB
 from rai_admin.mappers.customeTemplateMapper import *
+from rai_admin.mappers.customeTemplateMapper import ALLOWED_TEMPLATE_MODES
 from rai_admin.dao.MasterTemplateMappingDb import AccTemplateMap
 
 log = CustomLogger()
@@ -66,6 +67,9 @@ class ModerationService:
         try:
             log.info(f"createTemplate: {payload}")
             obj=CustomeTemplateStatus
+            if payload.mode not in ALLOWED_TEMPLATE_MODES:
+                obj.status="Forbidden: mode '{}' is not allowed".format(str(payload.mode))
+                return obj
             if(len(CustomeTemplateDB.findall({"templateName":payload.templateName,"userId":payload.userId,"mode":payload.mode,"category":payload.category}))>0):
                 obj.status="Template Name already exists for user {} and mode {} and category {}".format(str(payload.userId),str(payload.mode),str(payload.category))
                 return obj
@@ -139,8 +143,10 @@ class ModerationService:
         try:
             log.info(f"createTemplate: {payload}")
             obj=CustomeTemplateStatus
-            
-                
+            if payload.mode not in ALLOWED_TEMPLATE_MODES:
+                obj.status="Forbidden: mode '{}' is not allowed".format(str(payload.mode))
+                return obj
+
             tempres=CustomeTemplateDB.findall({"templateName":payload.templateName,"userId":payload.userId,"mode":payload.mode})
             # print("tempres====",tempres)
             if(len(tempres)==0):

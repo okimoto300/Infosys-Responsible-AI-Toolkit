@@ -9,17 +9,25 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from typing import Optional, Union, List,Tuple
+
+ALLOWED_TEMPLATE_MODES = {"Private_Template"}
 
 class subTemplate(BaseModel):
         subtemplate:str=Field(example="evaluation")
         templateData:str=Field(example="TemplateData1")
 class CustomeTemplateReq(BaseModel):
         userId:str=Field(example="123")
-        mode:str=Field(example="Master_Template/Private_Template")
+        mode:str=Field(example="Private_Template")
         category:str=Field(example="SingleModel/MultiModel")
+
+        @validator("mode")
+        def validate_mode(cls, v):
+            if v not in ALLOWED_TEMPLATE_MODES:
+                raise ValueError(f"mode must be one of {ALLOWED_TEMPLATE_MODES}")
+            return v
         # templateType:str=Field(example="request")
         templateName:str=Field(example="Template1")
         description:str=Field(example="Template1")
