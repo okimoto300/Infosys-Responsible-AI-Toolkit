@@ -2083,9 +2083,13 @@ def updateAWSCreds(payload:CredUpdate):
     log.info("Entered updateAWSCreds usecase routing method")
     try:
         response = AWSService.updateCreds(payload)
+        if hasattr(response, 'status') and response.status.startswith("Unauthorized"):
+            raise HTTPException(status_code=403, detail=response.status)
         log.debug("response : "+ str(response))
         log.info("exit updateAWSCreds usecase routing method")
         return response
+    except HTTPException:
+        raise
     except RaiAdminException as cie:
         log.error(cie.__dict__)
         log.info("exit updateAWSCreds usecase routing method")

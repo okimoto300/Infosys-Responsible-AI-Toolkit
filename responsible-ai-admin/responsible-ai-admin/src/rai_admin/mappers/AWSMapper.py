@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 class AWSReq(BaseModel):
     credName:str=Field(example="aws")
+    userId:str=Field(example="123")
     awsAccessKeyId:str=Field(example="xyz")
     awsSecretAccessKey:str=Field(example="xyz")
     awsSessionToken:str=Field(example="xyz")
@@ -21,6 +22,7 @@ class AWSRes(BaseModel):
 
 class CredUpdate(BaseModel):
     credName:str=Field(example="aws")
+    userId:str=Field(example="123")
     awsAccessKeyId:str=Field(example="xyz")
     awsSecretAccessKey:str=Field(example="xyz")
     awsSessionToken:str=Field(example="xyz")

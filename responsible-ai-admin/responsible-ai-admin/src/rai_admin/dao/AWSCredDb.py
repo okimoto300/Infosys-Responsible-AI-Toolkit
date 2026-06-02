@@ -44,7 +44,8 @@ class AWSCredDb:
                                "awsSecretAccessKey":v.awsSecretAccessKey,
                                "awsSessionToken":v.awsSessionToken,
                                "expirationTime":v.expirationTime,
-                               "creationTime":v.creationTime})
+                               "creationTime":v.creationTime,
+                               "userId":v.get("userId","")})
         return value_list
     
     
@@ -54,6 +55,7 @@ class AWSCredDb:
          mydoc = {
             "_id":localTime,
             "credName":value.credName,
+            "userId":value.userId,
             "awsAccessKeyId":value.awsAccessKeyId,
             "awsSecretAccessKey":value.awsSecretAccessKey,
             "awsSessionToken":value.awsSessionToken,

@@ -53,11 +53,16 @@ class AWSService:
     
     def updateCreds(payload:CredUpdate)->AWSStatus:
         try:
-            log.info(f"updateCreds: {payload}")
+            log.info(f"updateCreds: {payload.credName}")
             obj=AWSStatus
             res=AWSCredDb.findall({"credName":payload.credName})
             if(len(res)==0):
                 obj.status="Creds dosent exists"
+                return obj
+            stored_userId = res[0].get('userId', '')
+            if not payload.userId or payload.userId != stored_userId:
+                log.error(f"Ownership check failed for credName: {payload.credName}")
+                obj.status="Unauthorized: userId does not match credential owner"
                 return obj
             updateCred = AWSCredDb.update(res[0]['_id'],{"awsAccessKeyId":payload.awsAccessKeyId,
                                                         "awsSecretAccessKey":payload.awsSecretAccessKey,
