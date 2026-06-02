@@ -154,16 +154,20 @@ class Telemetry:
         
 
 
-# Authentication 
+# Authentication
 
-auth_type = os.environ.get("AUTH_TYPE")
+auth_type = os.environ.get("AUTH_TYPE", "jwt")
 
 if auth_type == "azure":
     auth = get_auth_client_id()
 elif auth_type == "jwt":
     auth = get_auth_jwt()
-
-elif auth_type == 'none':
+elif auth_type == "none":
+    log.critical(
+        "AUTH_TYPE=none: authentication is DISABLED. "
+        "This must only be used for local development. "
+        "All requests to protected endpoints will be rejected."
+    )
     auth = get_auth_none()
 else:
     raise HTTPException(status_code=500, detail="Invalid authentication type configured")

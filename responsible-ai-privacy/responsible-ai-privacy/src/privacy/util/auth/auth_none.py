@@ -10,10 +10,28 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #       # src/privacy/util/auth/auth_none.py
 
-from fastapi import Depends
+import logging
+import warnings
+
+from fastapi import HTTPException
+
+log = logging.getLogger(__name__)
 
 def authenticate_none():
-    return True
+    raise HTTPException(
+        status_code=403,
+        detail="Authentication is disabled (AUTH_TYPE=none). "
+               "Configure a real authentication backend (azure or jwt) before deploying.",
+    )
 
 def get_auth_none():
+    warnings.warn(
+        "AUTH_TYPE=none disables authentication on all protected endpoints. "
+        "This is intended for local development only and must NEVER be used in production.",
+        stacklevel=2,
+    )
+    log.critical(
+        "AUTH_TYPE=none: authentication is DISABLED on all protected endpoints. "
+        "Set AUTH_TYPE to 'azure' or 'jwt' for any non-local deployment."
+    )
     return authenticate_none

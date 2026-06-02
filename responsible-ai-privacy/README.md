@@ -129,7 +129,7 @@ After installing all the required packages, configure the variables necessary to
    PRIVACY_ERROR_URL = "${privacyerrorurl}" # [Optional]** - if teleflag=False otherwise provide the error url
    ADMIN_CONNECTION="${adminconnection}"  # [Optional] True if wants to connect to Admin module 
    PRIVADMIN_API="${adminapi}" # Optional if adminconnection is not True otherwise provide Admin url
-   AUTH_TYPE = "${authtype}"            # [Optional]   Options: azure , jwt , none (bydefault)
+   AUTH_TYPE = "${authtype}"            # [Recommended] Options: azure, jwt (default). 'none' exists for local development only and rejects all requests.
    SECRET_KEY = "${secretkey}"          # [Optional]  Secret key for JWT token
    AZURE_CLIENT_ID="${azureclientid}"   # [Optional]
    AZURE_TENANT_ID="${azuretenantid}"   # [Optional]
