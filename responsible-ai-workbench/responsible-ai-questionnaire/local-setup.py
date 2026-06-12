@@ -27,12 +27,18 @@ def main():
 
     # 1. Install dependencies
     print("[1/4] Installing dependencies...")
-    subprocess.check_call([
-        sys.executable, "-m", "pip", "install", "--quiet",
-        "fastapi", "pydantic", "requests", "requests-file",
-        "uvicorn", "PyYAML", "pymongo", "python-dotenv",
+    packages = [
+        "fastapi", "pydantic", "requests", "uvicorn",
+        "PyYAML", "pymongo", "python-dotenv",
         "python-multipart", "pandas", "chardet", "mongomock",
-    ])
+    ]
+    for pkg in packages:
+        try:
+            subprocess.check_call([
+                sys.executable, "-m", "pip", "install", "--quiet", pkg,
+            ])
+        except subprocess.CalledProcessError:
+            print(f"  WARNING: Failed to install {pkg}, skipping...")
 
     # 2. Configure .env
     print("[2/4] Configuring .env...")
