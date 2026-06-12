@@ -29,10 +29,10 @@ def main():
     print("[1/4] Installing dependencies...")
     subprocess.check_call([
         sys.executable, "-m", "pip", "install", "--quiet",
-        "fastapi==0.100.1", "pydantic==1.10.11", "requests==2.32.0",
-        "requests-file==1.5.1", "uvicorn==0.22.0", "PyYAML", "pymongo",
-        "python-dotenv", "python-multipart", "pandas", "chardet==4.0.0",
-        "mongomock",
+        "--index-url", "https://pypi.org/simple/",
+        "fastapi", "pydantic", "requests", "requests-file",
+        "uvicorn", "PyYAML", "pymongo", "python-dotenv",
+        "python-multipart", "pandas", "chardet", "mongomock",
     ])
 
     # 2. Configure .env
