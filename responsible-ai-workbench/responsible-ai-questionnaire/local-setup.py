@@ -27,14 +27,8 @@ def main():
 
     # 1. Install dependencies
     print("[1/4] Installing dependencies...")
-    pip_index = os.getenv(
-        "PIP_INDEX_URL",
-        "https://infyartifactory.jfrog.io/artifactory/api/pypi/pypi/simple",
-    )
     subprocess.check_call([
         sys.executable, "-m", "pip", "install", "--quiet",
-        "--index-url", pip_index,
-        "--trusted-host", pip_index.split("/")[2],
         "fastapi", "pydantic", "requests", "requests-file",
         "uvicorn", "PyYAML", "pymongo", "python-dotenv",
         "python-multipart", "pandas", "chardet", "mongomock",
