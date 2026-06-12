@@ -7,9 +7,11 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from typing import Optional,Union, List
+from urllib.parse import urlparse
+import os
 
 
 
@@ -22,9 +24,32 @@ class lotAssignStatus(BaseModel):
     class Config:
         orm_mode = True
 
+VALID_TENANTS = {"Privacy", "Safety", "FM-Moderation", "Explainability"}
+
 class linkRequest(BaseModel):
     tenant: str = Field(example="Privacy")
     telemetryLink: str= Field(example="http://vimptblt1117:5601/app/dashboards#/view/c24f5380-69c0-11ee-a575-8b621e49e8c9?_g=(refreshInterval:(pause:!t,value:60000),time:(from:now-7d%2Fd,to:now))")
+
+    @validator('tenant')
+    def validate_tenant(cls, v):
+        if v not in VALID_TENANTS:
+            raise ValueError(f"tenant must be one of {sorted(VALID_TENANTS)}")
+        return v
+
+    @validator('telemetryLink')
+    def validate_telemetry_link(cls, v):
+        parsed = urlparse(v)
+        if parsed.scheme not in ('http', 'https'):
+            raise ValueError("telemetryLink must use http or https scheme")
+        if not parsed.hostname:
+            raise ValueError("telemetryLink must contain a valid hostname")
+        allowed_hosts = os.getenv("TELEMETRY_ALLOWED_HOSTS", "")
+        if not allowed_hosts:
+            raise ValueError("TELEMETRY_ALLOWED_HOSTS is not configured; cannot accept telemetry URLs")
+        allowed_set = {h.strip().lower() for h in allowed_hosts.split(",") if h.strip()}
+        if parsed.hostname.lower() not in allowed_set:
+            raise ValueError("telemetryLink hostname is not in the allowed hosts list")
+        return v
 
 
 # class lotAssignResponse(BaseModel):
